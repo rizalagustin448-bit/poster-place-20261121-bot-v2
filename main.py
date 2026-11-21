@@ -14,10 +14,18 @@ import shutil
 from pathlib import Path
 
 
+MAX_BYTES = 1_048_576  # competition limit for /output/entry.png
+
+
 def main():
     out_dir = Path(os.environ.get("MAKEFUN_OUTPUT_DIR", "/output"))
     out_dir.mkdir(parents=True, exist_ok=True)
     src = Path(__file__).resolve().parent / "poster.png"
+    if not src.is_file():
+        raise SystemExit(f"missing asset: {src}")
+    size = src.stat().st_size
+    if size > MAX_BYTES:
+        raise SystemExit(f"asset too large: {size} bytes > {MAX_BYTES}")
     dst = out_dir / "entry.png"
     shutil.copyfile(src, dst)
     print(f"wrote {dst} ({dst.stat().st_size} bytes)")
